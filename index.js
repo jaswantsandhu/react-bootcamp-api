@@ -2,6 +2,8 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { client, dbName } = require("./db")
+const ProductsModel = require("./db/schema/products")
+
 const app = express();
 const SECRET_KEY = "dsfhjhfjshfhsdkfhskfskahfkjahkfhdksheuklrykdwpotuoi4yiu6876*&^&%gds"
 app.use(express.json())
@@ -17,18 +19,22 @@ const users = [];
 
 app.get("/products", (req, res)=>{
 
-    client.connect(()=>{
-        const db = client.db(dbName);
-        db.collection("products").find().toArray((err, products)=>{
-            if(err)
-                {
-                    console.log(err);
-                    res.send("error occured");
-                    return false;
-                }
-            res.json(products);
-        })
+    ProductsModel.find((err, data)=>{
+        res.json(data);
     })
+
+    // client.connect(()=>{
+    //     const db = client.db(dbName);
+    //     db.collection("products").find().toArray((err, products)=>{
+    //         if(err)
+    //             {
+    //                 console.log(err);
+    //                 res.send("error occured");
+    //                 return false;
+    //             }
+    //         res.json(products);
+    //     })
+    // })
 })
 
 app.post("/login", (req, res)=>{

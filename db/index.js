@@ -1,14 +1,13 @@
-const MongoClient = require('mongodb').MongoClient;
+const mongoose = require("mongoose");
+// const MongoClient = require('mongodb').MongoClient;
 
-let db = null
-// Connection URL
-// Database Name
 const dbName = 'food-ordering';
 const url = 'mongodb://localhost:27017/'+dbName;
+mongoose.connect(url)
 
-const client = new MongoClient(url);
+// const client = new MongoClient(url);
 
-module.exports = {
-    client,
-    dbName
-}
+// module.exports = {
+//     client,
+//     dbName
+// }
