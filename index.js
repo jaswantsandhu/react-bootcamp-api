@@ -1,17 +1,35 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const cors = require("cors")
+const cors = require("cors");
+const { client, dbName } = require("./db")
 const app = express();
 const SECRET_KEY = "dsfhjhfjshfhsdkfhskfskahfkjahkfhdksheuklrykdwpotuoi4yiu6876*&^&%gds"
-
 app.use(express.json())
 app.use(cors());
+
 
 const users = [];
 
 // GET POST PUT PATCH DELETE
 // POST /login
 // POST /user
+
+
+app.get("/products", (req, res)=>{
+
+    client.connect(()=>{
+        const db = client.db(dbName);
+        db.collection("products").find().toArray((err, products)=>{
+            if(err)
+                {
+                    console.log(err);
+                    res.send("error occured");
+                    return false;
+                }
+            res.json(products);
+        })
+    })
+})
 
 app.post("/login", (req, res)=>{
     const { email, password } = req.body;
@@ -39,25 +57,28 @@ app.post("/register", (req, res)=>{
 });
 
 app.post("/user", (req, res)=>{
-    const { authorization } = req.headers;
-    const decoded = jwt.verify(authorization, SECRET_KEY);
-    const { id } = decoded;
-    const user = users.find((item)=>{
-        return item.id === id
-    })
+    try {
+        const { authorization } = req.headers;
+        const decoded = jwt.verify(authorization, SECRET_KEY);
+        const { id } = decoded;
+        const user = users.find((item)=>{
+            return item.id === id
+        })
 
-    delete user.password
-    user.roles = "manager"
+        delete user.password
+        user.roles = "manager"
 
-    if(decoded){
-        res.json({ status : "success", user })
+        if(decoded){
+            res.json({ status : "success", user })
+        }
+        else
+        {
+            res.json({ status : "error" })
+        }
+        res.json({ accessToken : "dasdsad" })
+    } catch (error) {
+        console.log(error)
     }
-    else
-    {
-        res.json({ status : "error" })
-    }
-
-    res.json({ accessToken : "dasdsad" })
 });
 
 app.listen(8080, ()=>{
