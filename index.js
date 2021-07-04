@@ -4,6 +4,11 @@ const cors = require("cors");
 const { client, dbName } = require("./db")
 const ProductsModel = require("./db/schema/products")
 
+// Routers 
+const ProductRouter = require("./routes/products")
+
+
+
 const app = express();
 const SECRET_KEY = "dsfhjhfjshfhsdkfhskfskahfkjahkfhdksheuklrykdwpotuoi4yiu6876*&^&%gds"
 app.use(express.json())
@@ -16,26 +21,11 @@ const users = [];
 // POST /login
 // POST /user
 
+// /products
+// /products/1
+// /products/add
 
-app.get("/products", (req, res)=>{
-
-    ProductsModel.find((err, data)=>{
-        res.json(data);
-    })
-
-    // client.connect(()=>{
-    //     const db = client.db(dbName);
-    //     db.collection("products").find().toArray((err, products)=>{
-    //         if(err)
-    //             {
-    //                 console.log(err);
-    //                 res.send("error occured");
-    //                 return false;
-    //             }
-    //         res.json(products);
-    //     })
-    // })
-})
+app.use("/products", ProductRouter)
 
 app.post("/login", (req, res)=>{
     const { email, password } = req.body;
