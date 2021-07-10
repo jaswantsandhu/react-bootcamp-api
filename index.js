@@ -1,21 +1,17 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const { client, dbName } = require("./db")
-const ProductsModel = require("./db/schema/products")
+const { client, dbName } = require("./db");
+const ProductsModel = require("./db/schema/products");
+const UsersModel = require("./db/schema/user");
+require("dotenv").config();
 
-// Routers 
-const ProductRouter = require("./routes/products")
-
-
+// Routers
+const ProductRouter = require("./routes/products");
 
 const app = express();
-const SECRET_KEY = "dsfhjhfjshfhsdkfhskfskahfkjahkfhdksheuklrykdwpotuoi4yiu6876*&^&%gds"
-app.use(express.json())
+app.use(express.json());
 app.use(cors());
-
-
-const users = [];
 
 // GET POST PUT PATCH DELETE
 // POST /login
@@ -25,84 +21,58 @@ const users = [];
 // /products/1
 // /products/add
 
-app.use("/products", ProductRouter)
+app.use("/products", ProductRouter);
 
-app.post("/login", (req, res)=>{
-    const { email, password } = req.body;
-    const user = users.find((item)=>{
-        return item.email === email && item.password === password
-    })
-    if(user)
-        {
-            const { id } = user
-            const token = jwt.sign({ id }, SECRET_KEY);
-            res.json({ accessToken : token })
-        }
-    else
-        {
-            res.json({ status : "error" })
-        }
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await UsersModel.findOne({ email, password });
+    const { _id } = user;
+    const token = jwt.sign({ _id }, process.env.SECRET_KEY, { expiresIn : 5 });
+    res.json({ status: "success", accessToken: token });
+  } catch (error) {
+    res.json({ status: "error" });
+  }
 });
 
-app.post("/register", (req, res)=>{
-    const { email, password } = req.body;
-    const id = Math.ceil(Math.random() * 10000000000);
-    const token = jwt.sign({ id }, SECRET_KEY)
-    users.push({ email, password, id });
-    res.json({ accessToken : token })
+app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+  const id = Math.ceil(Math.random() * 10000000000);
+  const token = jwt.sign({ id }, process.env.SECRET_KEY);
+  users.push({ email, password, id });
+  res.json({ accessToken: token });
 });
 
-app.post("/user", (req, res)=>{
-    try {
-        const { authorization } = req.headers;
-        const decoded = jwt.verify(authorization, SECRET_KEY);
-        const { id } = decoded;
-        const user = users.find((item)=>{
-            return item.id === id
-        })
+app.post("/user", (req, res) => {
+  try {
+    const { authorization } = req.headers;
+    const decoded = jwt.verify(authorization, process.env.SECRET_KEY);
+    const { id } = decoded;
+    const user = users.find((item) => {
+      return item.id === id;
+    });
 
-        delete user.password
-        user.roles = "manager"
+    delete user.password;
+    user.roles = "manager";
 
-        if(decoded){
-            res.json({ status : "success", user })
-        }
-        else
-        {
-            res.json({ status : "error" })
-        }
-        res.json({ accessToken : "dasdsad" })
-    } catch (error) {
-        console.log(error)
+    if (decoded) {
+      res.json({ status: "success", user });
+    } else {
+      res.json({ status: "error" });
     }
+    res.json({ accessToken: "dasdsad" });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-app.listen(8080, ()=>{
-    console.log("application started at 8080.")
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.listen(8080, () => {
+  console.log("application started at 8080.");
+});
 
 // es6
 // import http from "http";
-
 
 // const server = http.createServer((req, res)=>{
 //     console.log(req);
