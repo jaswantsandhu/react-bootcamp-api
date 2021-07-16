@@ -4,7 +4,14 @@ const cors = require("cors");
 const { client, dbName } = require("./db");
 const ProductsModel = require("./db/schema/products");
 const UsersModel = require("./db/schema/user");
-require("dotenv").config();
+
+if (process.env.NODE_ENV === "production") {
+  require("dotenv").config({ path: ".prod.env" });
+} else {
+  require("dotenv").config();
+}
+
+console.log(process.env);
 
 // Routers
 const ProductRouter = require("./routes/products");
@@ -21,6 +28,8 @@ app.use(cors());
 // /products/1
 // /products/add
 
+app.use("/public", express.static("public"));
+
 app.use("/products", ProductRouter);
 
 app.post("/login", async (req, res) => {
@@ -29,7 +38,7 @@ app.post("/login", async (req, res) => {
   try {
     const user = await UsersModel.findOne({ email, password });
     const { _id } = user;
-    const token = jwt.sign({ _id }, process.env.SECRET_KEY, { expiresIn : 5 });
+    const token = jwt.sign({ _id }, process.env.SECRET_KEY);
     res.json({ status: "success", accessToken: token });
   } catch (error) {
     res.json({ status: "error" });

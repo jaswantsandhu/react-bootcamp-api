@@ -1,7 +1,11 @@
 const Router = require("express").Router();
 const ProductsModel = require("../db/schema/products");
 const AdminAuth = require("../middlewares/admin-auth")
-
+const multer = require("multer");
+const files = multer();
+const fs = require("fs");
+const { promisify } = require("util");
+const writeFilePromise = promisify(fs.writeFile)
 
 // /products
 Router.get("/", (req, res) => {
@@ -11,25 +15,30 @@ Router.get("/", (req, res) => {
 });
 
 // /products
-Router.post("/", AdminAuth, async (req, res) => {
+Router.post("/", files.any(), AdminAuth, async (req, res) => {
   try {
     const { description, image, name, price, rating } = req.body;
+    const productImage = req.files[0]
+    const random = Math.ceil(Math.random() * 100000000);
+
+    await writeFilePromise(`./public/products/images/${random + productImage.originalname}`, productImage.buffer)
 
     if (description && name && price) {
       const newProduct = new ProductsModel({
         description,
-        image,
         name,
+        image : `/public/products/images/${random + productImage.originalname}`,
         price,
         rating,
       });
       const doc = await newProduct.save();
       res.send({ status: "success", inserted: doc });
     } else {
-      res.statusCode(404).send({ status: "failure" });
+      res.send({ status: "failure" });
     }
   } catch (error) {
-    res.statusCode(500).send({ status: "failure" });
+    console.log(error)
+    res.send({ status: "failure" });
   }
 });
 
@@ -46,6 +55,8 @@ Router.delete("/:id", AdminAuth, async (req, res) => {
   // }).catch(()=>{
   //   res.statusCode(500).json({ status : "error" })
   // })
+
+  
 
   try {
     const a = await ProductsModel.deleteOne({ _id: id });
