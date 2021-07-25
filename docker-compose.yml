@@ -1,0 +1,14 @@
+version : "2"
+services : 
+    mongo : 
+        container_name: mongo
+        image : mongo
+        ports :
+            - "27017:27016"
+    foodorderingapp : 
+        container_name: foodorderingapp
+        build : .
+        ports :
+            - "8080:8080"
+        links:
+            - mongo

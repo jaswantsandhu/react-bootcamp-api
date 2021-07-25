@@ -8,6 +8,8 @@ const ExpressGraphQL = require("express-graphql");
 const { graphqlHTTP } = ExpressGraphQL 
 const RootSchema = require("./schema")
 
+const port = process.env.PORT || 8080
+
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: ".prod.env" });
 } else {
@@ -44,6 +46,10 @@ app.use("/products", ProductRouter);
 app.use("api/v1/products", ProductRouter);
 
 app.use("api/v2/products", ProductRouter);
+
+app.get("/test-url", (req, res)=>{
+    res.json("dasdsadad")
+})
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
