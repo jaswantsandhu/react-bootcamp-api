@@ -8,8 +8,12 @@ const ProductSchema = new Schema({
     ingredients : [ {
         name : String
     } ],
-    rating : Number
+    rating : Number,
+    discount : Number,
+    topProduct : Boolean
 })
+
+//name description
 
 const ProductsModel = model("products", ProductSchema, "products")
 
