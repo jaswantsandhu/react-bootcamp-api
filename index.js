@@ -4,11 +4,15 @@ const cors = require("cors");
 const { client, dbName } = require("./db");
 const ProductsModel = require("./db/schema/products");
 const UsersModel = require("./db/schema/user");
+const ExpressGraphQL = require("express-graphql");
+const { graphqlHTTP } = ExpressGraphQL 
+const RootSchema = require("./schema")
 
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: ".prod.env" });
 } else {
   require("dotenv").config();
+  console.log("dadsa")
 }
 
 console.log(process.env);
@@ -28,9 +32,18 @@ app.use(cors());
 // /products/1
 // /products/add
 
+app.use("/graphql", graphqlHTTP({
+    schema : RootSchema,
+    graphiql : process.env.NODE_ENV !== "production"
+}))
+
 app.use("/public", express.static("public"));
 
 app.use("/products", ProductRouter);
+
+app.use("api/v1/products", ProductRouter);
+
+app.use("api/v2/products", ProductRouter);
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;

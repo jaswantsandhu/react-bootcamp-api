@@ -6,6 +6,8 @@ const files = multer();
 const fs = require("fs");
 const { promisify } = require("util");
 const writeFilePromise = promisify(fs.writeFile)
+const unlinkFilePromise = promisify(fs.unlink);
+const path = require("path")
 
 // /products
 Router.get("/", (req, res) => {
@@ -46,7 +48,7 @@ Router.post("/", files.any(), AdminAuth, async (req, res) => {
 // /products/2
 // /products/1000
 // /products/dasdshadjkahd
-Router.delete("/:id", AdminAuth, async (req, res) => {
+Router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   // ProductsModel.deleteOne({ _id : id })
@@ -56,12 +58,13 @@ Router.delete("/:id", AdminAuth, async (req, res) => {
   //   res.statusCode(500).json({ status : "error" })
   // })
 
-  
-
   try {
+    const doc = await ProductsModel.findOne({ _id : id });
+    await unlinkFilePromise(path.join("./public" + doc.image));
     const a = await ProductsModel.deleteOne({ _id: id });
     res.json({ status: "success" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ status: "error" });
   }
 });
