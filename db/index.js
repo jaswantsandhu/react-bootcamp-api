@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const dbName = 'food-ordering';
 //port change back 27017
-const url = 'mongodb://localhost:27016/'+dbName;
+const url = 'mongodb://mongo:27017/'+dbName;
 mongoose.connect(url)
 
 // const client = new MongoClient(url);

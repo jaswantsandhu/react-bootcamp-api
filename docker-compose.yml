@@ -1,14 +1,18 @@
 version : "2"
 services : 
-    mongo : 
-        container_name: mongo
-        image : mongo
-        ports :
-            - "27017:27016"
     foodorderingapp : 
+        restart: always
         container_name: foodorderingapp
         build : .
         ports :
             - "8080:8080"
         links:
             - mongo
+        volumes:
+            - ./:/apps/food-ordering-api
+    mongo : 
+        restart: always
+        container_name: foodorderingappmongo
+        image : mongo
+        ports :
+            - "27017:27017"
